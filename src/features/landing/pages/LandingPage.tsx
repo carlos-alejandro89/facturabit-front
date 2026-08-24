@@ -8,19 +8,22 @@ import {
   ChevronDown,
   Code2,
   CreditCard,
+  Database,
   FileSignature,
   History,
   Menu,
   PackageOpen,
+  ReceiptText,
   ShieldCheck,
   UsersRound,
+  Workflow,
   X,
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Brand } from "../components/Brand";
+import pepeGuide from "../../../assets/brand/pepe-guide.png";
+import { Brand } from "../../../shared/components/Brand";
 import { InvoiceVisual } from "../components/InvoiceVisual";
-import pepeGuide from "../assets/brand/pepe-guide.png";
 
 const features = [
   {
@@ -44,6 +47,7 @@ const features = [
     text: "Cancela tus comprobantes sin salir de la aplicación ni ingresar directamente al portal del SAT.",
   },
 ];
+
 const faqs = [
   [
     "¿Puedo administrar varias empresas?",
@@ -69,6 +73,7 @@ const faqs = [
 
 const plans = [
   {
+    id: "inicial",
     name: "Plan Inicial",
     price: "$649.00",
     features: [
@@ -79,6 +84,7 @@ const plans = [
     ],
   },
   {
+    id: "basico",
     name: "Plan Básico",
     price: "$1,099.00",
     features: [
@@ -89,6 +95,7 @@ const plans = [
     ],
   },
   {
+    id: "pro",
     name: "Plan PRO",
     price: "$1,999.00",
     recommended: true,
@@ -101,6 +108,7 @@ const plans = [
     ],
   },
   {
+    id: "premium",
     name: "Premium",
     price: "$3,299.00",
     features: [
@@ -137,13 +145,16 @@ export function LandingPage() {
             <a href="#preguntas" className="nav-link">
               Preguntas
             </a>
+            <Link to="/desarrolladores" className="nav-link">
+              Desarrolladores
+            </Link>
           </nav>
           <div className="hidden items-center gap-3 lg:flex">
             <Link className="btn-ghost" to="/login">
               Iniciar sesión
             </Link>
-            <Link className="btn-primary" to="/panel">
-              Ir a mi panel <ArrowRight size={17} />
+            <Link className="btn-primary" to="/registro">
+              Comenzar ahora <ArrowRight size={17} />
             </Link>
           </div>
           <button
@@ -162,9 +173,10 @@ export function LandingPage() {
               <a href="#nosotros">Nosotros</a>
               <a href="#precios">Precios</a>
               <a href="#preguntas">Preguntas</a>
+              <Link to="/desarrolladores">Desarrolladores</Link>
               <Link to="/login">Iniciar sesión</Link>
-              <Link className="btn-primary justify-center" to="/panel">
-                Ir a mi panel
+              <Link className="btn-primary justify-center" to="/registro">
+                Comenzar ahora
               </Link>
             </div>
           </div>
@@ -194,7 +206,7 @@ export function LandingPage() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 className="btn-primary btn-large justify-center"
-                to="/login"
+                to="/registro"
               >
                 Comenzar ahora <ArrowRight size={19} />
               </Link>
@@ -394,19 +406,131 @@ export function LandingPage() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+      <section
+        id="soluciones-empresariales"
+        className="section-space relative overflow-hidden bg-[#eaf3ef]"
+      >
+        <div className="absolute -right-24 -top-24 size-72 rounded-full bg-[var(--color-mint)]/20 blur-3xl" />
+        <div className="absolute -left-32 bottom-0 size-72 rounded-full bg-white/70 blur-3xl" />
+        <div className="container-shell relative">
+          <div>
+            <div className="grid gap-6 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-[var(--color-success)]">
+                  Soluciones empresariales
+                </p>
+                <h2 className="mt-3 max-w-xl font-display text-3xl font-semibold tracking-[-.045em] text-[var(--color-brand)] sm:text-4xl">
+                  Infraestructura fiscal construida para tu operación.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted)] lg:justify-self-end">
+                Llevamos la experiencia de FacturaBit a los procesos que ocurren
+                antes y después del timbrado: recepción de comprobantes,
+                facturación desde tickets e integración con tus sistemas.
+              </p>
+            </div>
+
+            <div className="mt-9 grid gap-5 md:grid-cols-3">
+              {[
+                {
+                  icon: Database,
+                  title: "Bóveda digital de CFDI",
+                  label: "Recepción de proveedores",
+                  text: "Un portal para recibir y organizar los comprobantes que tus proveedores entregan a la empresa.",
+                  capabilities: [
+                    "Recepción de archivos XML y PDF",
+                    "Validación fiscal y estructural",
+                    "Consulta y resguardo centralizado",
+                  ],
+                },
+                {
+                  icon: ReceiptText,
+                  title: "Portales de autofacturación",
+                  label: "Facturación desde tickets",
+                  text: "Tus clientes localizan su compra, capturan sus datos fiscales y obtienen la factura sin intervención de tu equipo.",
+                  capabilities: [
+                    "Consulta por ticket o folio",
+                    "Captura de datos fiscales",
+                    "Entrega automática de XML y PDF",
+                  ],
+                },
+                {
+                  icon: Workflow,
+                  title: "Integraciones a medida",
+                  label: "Conecta tus sistemas",
+                  text: "Incorporamos emisión, cancelación y consulta de CFDI directamente en el flujo que tu empresa ya utiliza.",
+                  capabilities: [
+                    "ERP, punto de venta y e-commerce",
+                    "Integración mediante API JSON",
+                    "Reglas y procesos particulares",
+                  ],
+                },
+              ].map(({ icon: Icon, title, label, text, capabilities }) => (
+                <article
+                  className="rounded-[1.4rem] border border-[var(--color-border)] bg-white p-6 shadow-[0_12px_36px_rgba(15,61,56,.055)]"
+                  key={title}
+                >
+                  <span className="grid size-11 place-items-center rounded-xl bg-[var(--color-success-soft)] text-[var(--color-success)]">
+                    <Icon size={21} strokeWidth={1.7} />
+                  </span>
+                  <p className="mt-5 text-[.62rem] font-extrabold uppercase tracking-[.14em] text-[var(--color-success)]">
+                    {label}
+                  </p>
+                  <h3 className="mt-2 font-display text-lg font-semibold tracking-[-.025em] text-[var(--color-brand)]">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
+                    {text}
+                  </p>
+                  <ul className="mt-5 space-y-2 border-t border-[var(--color-border)] pt-4">
+                    {capabilities.map((capability) => (
+                      <li
+                        className="flex items-start gap-2 text-[.7rem] leading-5 text-[var(--color-muted)]"
+                        key={capability}
+                      >
+                        <CheckCircle2
+                          className="mt-0.5 shrink-0 text-[var(--color-success)]"
+                          size={14}
+                        />
+                        {capability}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-7 flex flex-col items-start justify-between gap-5 rounded-2xl border border-[var(--color-border)] bg-white px-6 py-5 sm:flex-row sm:items-center">
+              <div>
+                <p className="font-display text-lg font-semibold text-[var(--color-brand)]">
+                  ¿Tu empresa necesita un flujo diferente?
+                </p>
+                <p className="mt-1 text-xs text-[var(--color-muted)]">
+                  Cuéntanos cómo recibes, emites o integras CFDI y diseñaremos
+                  el flujo alrededor de tu operación.
+                </p>
+              </div>
+              <a
+                className="btn-dark whitespace-nowrap"
+                href="mailto:hola@facturabit.mx?subject=Proyecto%20empresarial%20FacturaBit"
+              >
+                Hablemos de tu proyecto <ArrowRight size={17} />
+              </a>
+            </div>
+          </div>
           <div className="mt-14 grid overflow-hidden rounded-[2rem] bg-[var(--color-brand-deep)] text-white shadow-[var(--shadow-card)] lg:grid-cols-2">
             <div className="p-8 sm:p-12">
               <div className="eyebrow">
                 <Code2 size={15} /> Para desarrolladores
               </div>
               <h3 className="mt-6 font-display text-3xl font-semibold tracking-[-.04em]">
-                De JSON a un XML válido ante el SAT.
+                Integra el timbrado en tu propia plataforma.
               </h3>
               <p className="mt-4 max-w-xl leading-7 text-[var(--color-brand-muted)]">
-                Integre nuestro servicio en el proceso de facturación de su
-                sistema de ventas actual. Usted envía la información
-                estructurada; FacturaBit se encarga de convertirla y prepararla
-                para su emisión.
+                Envía la información de tu factura en JSON y recibe el CFDI
+                timbrado, su UUID, sellos y XML listo para almacenar.
               </p>
               <p className="mt-6 font-semibold text-[var(--color-accent)]">
                 Hecho por desarrolladores, para desarrolladores.
@@ -426,8 +550,16 @@ export function LandingPage() {
                   }
                 </code>
               </pre>
-              <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-[var(--color-mint)]">
-                <Braces size={18} /> Integración simple mediante JSON
+              <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2 text-sm font-semibold text-[var(--color-mint)]">
+                  <Braces size={18} /> Integración simple mediante JSON
+                </div>
+                <Link
+                  className="inline-flex items-center gap-2 text-sm font-bold text-[var(--color-accent)] transition hover:text-white"
+                  to="/desarrolladores"
+                >
+                  Consultar documentación <ArrowRight size={17} />
+                </Link>
               </div>
             </div>
           </div>
@@ -520,7 +652,7 @@ export function LandingPage() {
                 </ul>
 
                 <Link
-                  to="/login"
+                  to={`/registro?plan=${plan.id}`}
                   className={`inline-flex items-center justify-center rounded-xl px-5 font-bold transition ${
                     plan.recommended
                       ? "mt-8 min-h-12 bg-[var(--color-accent)] text-sm text-[var(--color-brand-deep)] hover:-translate-y-0.5"

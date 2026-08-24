@@ -1,5 +1,6 @@
 import {
   Bell,
+  CheckCircle2,
   ChevronRight,
   CircleDollarSign,
   FileCheck2,
@@ -12,8 +13,25 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Brand } from "../components/Brand";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Brand } from "../../../shared/components/Brand";
+import { PaymentCardForm } from "../components/PaymentCardForm";
+
+interface DashboardLocationState {
+  registration?: {
+    fullName: string;
+    businessName: string;
+    planName?: string;
+    planPrice?: string;
+    requiresPayment: boolean;
+  };
+  purchase?: {
+    planName: string;
+    planPrice?: string;
+    requiresPayment: boolean;
+  };
+}
 
 const stats = [
   {
@@ -36,8 +54,34 @@ const stats = [
   },
 ];
 export function DashboardPage() {
+  const location = useLocation();
+  const registration = (location.state as DashboardLocationState | null)
+    ?.registration;
+  const purchase = (location.state as DashboardLocationState | null)?.purchase;
+  const paymentRequest = registration?.requiresPayment
+    ? registration
+    : purchase?.requiresPayment
+      ? purchase
+      : undefined;
+  const [showPayment, setShowPayment] = useState(Boolean(paymentRequest));
+  const [planActivated, setPlanActivated] = useState(false);
+  const firstName = registration?.fullName.trim().split(/\s+/)[0] || "Carlos";
+
+  const completePayment = () => {
+    setShowPayment(false);
+    setPlanActivated(true);
+  };
+
   return (
     <main className="min-h-screen bg-[var(--color-dashboard)] text-[var(--color-ink)]">
+      {showPayment && paymentRequest?.planName && (
+        <PaymentCardForm
+          planName={paymentRequest.planName}
+          planPrice={paymentRequest.planPrice}
+          onClose={() => setShowPayment(false)}
+          onComplete={completePayment}
+        />
+      )}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col border-r border-[var(--color-border)] bg-white px-5 py-7 lg:flex">
         <div className="px-3">
           <Brand />
@@ -60,8 +104,12 @@ export function DashboardPage() {
           <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
             Cuenta actual
           </p>
-          <p className="mt-2 font-bold">Acme México, S.A.</p>
-          <p className="text-sm text-[var(--color-muted)]">AAA010101AAA</p>
+          <p className="mt-2 font-bold">
+            {registration?.businessName || "Acme México, S.A."}
+          </p>
+          <p className="text-sm text-[var(--color-muted)]">
+            {registration?.planName || "AAA010101AAA"}
+          </p>
         </div>
         <Link className="sidebar-link mt-3" to="/">
           <LogOut /> Cerrar sesión
@@ -78,7 +126,7 @@ export function DashboardPage() {
                 Panel de usuario
               </p>
               <h1 className="font-display text-xl font-bold">
-                Buenos días, Carlos
+                Buenos días, {firstName}
               </h1>
             </div>
           </div>
@@ -96,6 +144,15 @@ export function DashboardPage() {
           </div>
         </header>
         <div className="p-5 sm:p-8 xl:p-10">
+          {planActivated && (
+            <div className="mb-6 flex items-center gap-3 rounded-2xl border border-[var(--color-mint)]/40 bg-[var(--color-success-soft)] px-5 py-4 text-sm text-[var(--color-brand)]">
+              <CheckCircle2 size={19} className="text-[var(--color-success)]" />
+              <span>
+                <strong>{paymentRequest?.planName}</strong> fue activado
+                correctamente.
+              </span>
+            </div>
+          )}
           <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow-light">Resumen operativo</p>
