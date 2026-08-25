@@ -33,10 +33,10 @@ export function LoginPage() {
     });
   };
   return (
-    <main className="grid min-h-screen bg-white lg:grid-cols-2">
-      <section className="flex min-h-screen flex-col bg-[#fbfcfb] px-6 py-8 sm:px-12 lg:px-16 xl:px-24">
+    <main className="grid min-h-screen bg-white lg:h-screen lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden">
+      <section className="flex min-h-screen flex-col bg-[#fbfcfb] px-6 py-8 sm:px-12 lg:h-screen lg:min-h-0 lg:px-16 xl:px-24">
         <Brand />
-        <div className="my-auto w-full max-w-[25.5rem] py-10">
+        <div className="mt-12 w-full max-w-[32rem] pb-8 sm:mt-14 lg:mt-16 xl:mt-20">
           <Link
             className="mb-10 flex w-fit items-center gap-2 text-xs font-medium text-[var(--color-muted)] transition hover:text-[var(--color-brand)]"
             to="/"
@@ -113,11 +113,11 @@ export function LoginPage() {
             </Link>
           </p>
         </div>
-        <p className="text-xs text-[var(--color-muted)]">
+        <p className="mt-auto pt-8 text-xs text-[var(--color-muted)]">
           © 2026 FacturaBit · Privacidad · Soporte
         </p>
       </section>
-      <section className="login-art relative hidden overflow-hidden bg-[var(--color-brand)] lg:flex lg:items-end lg:justify-center">
+      <section className="login-art relative hidden overflow-hidden bg-[var(--color-brand)] lg:block lg:h-screen">
         <div className="absolute -right-[10%] -top-[10%] size-[500px] rounded-full bg-[var(--color-mint)]/15 blur-[100px]" />
         <div className="absolute left-[12%] top-[11%] size-[470px] rounded-full border border-white/[.07]" />
         <div className="absolute left-[25%] top-[22%] size-[310px] rounded-full border border-white/[.06]" />
@@ -144,11 +144,13 @@ export function LoginPage() {
           </div>
         </div>
 
-        <img
-          src={pepeLoginTablet}
-          alt="Pepe, asistente de FacturaBit"
-          className="relative z-[1] max-h-[84%] w-auto max-w-[86%] translate-x-[4%] object-contain object-bottom drop-shadow-[0_28px_40px_rgba(4,31,29,.4)]"
-        />
+        <div className="absolute inset-x-0 bottom-0 z-[1] flex h-[76%] items-start justify-center overflow-hidden">
+          <img
+            src={pepeLoginTablet}
+            alt="Pepe, asistente de FacturaBit"
+            className="h-[135%] w-auto max-w-none translate-x-[4%] object-contain object-top drop-shadow-[0_28px_40px_rgba(4,31,29,.4)]"
+          />
+        </div>
       </section>
     </main>
   );

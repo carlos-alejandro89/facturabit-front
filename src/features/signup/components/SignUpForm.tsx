@@ -40,7 +40,7 @@ export function SignUpForm({
   return (
     <form className="login-form mt-8 space-y-4" onSubmit={submit}>
       <label className="field-label">
-        Nombre de la red comercial
+        Nombre de la organización
         <div className="field">
           <Building2 size={16} strokeWidth={1.7} />
           <input
@@ -49,7 +49,7 @@ export function SignUpForm({
             onChange={(event) =>
               updateField("NombreRedComercial", event.target.value)
             }
-            placeholder="Mi empresa"
+            placeholder="Vertex Contable, S.A. de C.V."
             maxLength={200}
             autoComplete="organization"
             required
