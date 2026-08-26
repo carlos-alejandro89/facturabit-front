@@ -11,11 +11,14 @@ import pepeGuide from "../../../assets/brand/pepe-guide.png";
 import { Brand } from "../../../shared/components/Brand";
 import {
   findSubscriptionPlan,
+  getSubscriptionGuid,
   type SubscriptionPlanId,
   subscriptionPlans,
 } from "../../../shared/models/subscriptionPlan";
 import { PlanSelection } from "../components/PlanSelection";
 import { SignUpForm, type SignUpFormData } from "../components/SignUpForm";
+import { createFiscalEntity } from "../services/createFiscalEntity";
+import { login, saveSession } from "../../auth/services/authService";
 
 type SignUpStep = "details" | "plan" | "ready";
 
@@ -43,6 +46,8 @@ export function SignUpPage() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId | null>(
     initialPlan,
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string>();
 
   const continueFromDetails = (data: SignUpFormData) => {
     setDetails(data);
@@ -54,21 +59,54 @@ export function SignUpPage() {
     setStep("ready");
   };
 
-  const finishRegistration = () => {
+  const finishRegistration = async () => {
     if (!details || !selectedPlan) return;
 
     const plan = findSubscriptionPlan(selectedPlan);
-    navigate("/panel", {
-      state: {
-        registration: {
-          fullName: details.FullName,
-          businessName: details.NombreRedComercial,
-          planName: getPlanName(selectedPlan),
-          planPrice: plan?.price,
-          requiresPayment: selectedPlan !== "prueba",
+    const subscriptionGuid = getSubscriptionGuid(selectedPlan);
+    if (!subscriptionGuid) {
+      setSubmitError("La suscripción seleccionada no es válida.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(undefined);
+
+    try {
+      const created = await createFiscalEntity({
+        ...details,
+        SuscripcionGuid: subscriptionGuid,
+      });
+
+      const session = await login(details.Email, created.passwordTemporal);
+      saveSession(session, true);
+
+      navigate("/panel", {
+        state: {
+          registration: {
+            fullName: details.FullName,
+            businessName: details.NombreRedComercial,
+            planName: getPlanName(selectedPlan),
+            planPrice: plan?.price,
+            planId: selectedPlan,
+            requiresPayment: selectedPlan !== "prueba",
+            entidadFiscalGuid: created.entidadFiscal.guid,
+            ordenCompraGuid: created.ordenCompraGuid,
+            folioOrdenCompra: created.folioOrdenCompra,
+            passwordTemporal: created.passwordTemporal,
+            passwordExpiresAt: created.passwordExpiresAt,
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "No fue posible completar el registro.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -156,12 +194,25 @@ export function SignUpPage() {
                 </p>
               </div>
               <button
-                className="btn-primary mt-5 w-full justify-center"
+                className="btn-primary mt-5 w-full justify-center disabled:cursor-wait disabled:opacity-60"
                 type="button"
+                disabled={isSubmitting}
                 onClick={finishRegistration}
               >
-                {selectedPlan === "prueba" ? "Activar prueba" : "Crear cuenta"}
+                {isSubmitting
+                  ? "Creando tu espacio..."
+                  : selectedPlan === "prueba"
+                    ? "Activar prueba"
+                    : "Crear cuenta"}
               </button>
+              {submitError && (
+                <p
+                  className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs leading-5 text-red-700"
+                  role="alert"
+                >
+                  {submitError}
+                </p>
+              )}
             </div>
           )}
         </div>

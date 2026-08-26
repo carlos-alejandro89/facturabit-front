@@ -8,29 +8,74 @@ import {
   Sparkles,
 } from "lucide-react";
 import { type FormEvent, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+import useSound from "use-sound";
 import pepeLoginTablet from "../../../assets/brand/pepe-login-tablet.png";
 import { Brand } from "../../../shared/components/Brand";
 import { findSubscriptionPlan } from "../../../shared/models/subscriptionPlan";
+import { login, saveSession } from "../services/authService";
+import { createErrorSoundDataUri, createSuccessSoundDataUri } from "../utils/errorSound";
+
+interface LoginLocationState {
+  from?: string;
+}
+
+const errorSound = createErrorSoundDataUri();
+const successSound = createSuccessSoundDataUri();
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const selectedPlan = findSubscriptionPlan(searchParams.get("plan"));
   const [showPassword, setShowPassword] = useState(false);
-  const submit = (event: FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string>();
+  const [playError] = useSound(errorSound, { volume: 0.16 });
+  const [playSuccess] = useSound(successSound, { volume: 0.13 });
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    navigate("/panel", {
-      state: selectedPlan
-        ? {
-            purchase: {
-              planName: selectedPlan.name,
-              planPrice: selectedPlan.price,
-              requiresPayment: true,
-            },
-          }
-        : undefined,
-    });
+    setIsSubmitting(true);
+    setSubmitError(undefined);
+
+    try {
+      const session = await login(email.trim(), password);
+      saveSession(session, rememberMe);
+      playSuccess();
+      toast.success("Sesión iniciada", {
+        description: `Bienvenido de nuevo, ${session.fullName.split(/\s+/)[0]}.`,
+      });
+      const requestedPath = (location.state as LoginLocationState | null)?.from;
+
+      navigate(requestedPath?.startsWith("/panel") ? requestedPath : "/panel", {
+        replace: true,
+        state: selectedPlan
+          ? {
+              purchase: {
+                planName: selectedPlan.name,
+                planPrice: selectedPlan.price,
+                planId: selectedPlan.id,
+                requiresPayment: true,
+                savedCards: [],
+              },
+            }
+          : undefined,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No fue posible iniciar sesión.";
+      setSubmitError(message);
+      playError();
+      toast.error("No pudimos iniciar tu sesión", {
+        description: message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <main className="grid min-h-screen bg-white lg:h-screen lg:min-h-0 lg:grid-cols-2 lg:overflow-hidden">
@@ -63,7 +108,7 @@ export function LoginPage() {
               Correo electrónico
               <div className="field">
                 <Mail size={16} strokeWidth={1.7} />
-                <input type="email" placeholder="tu@empresa.com" required />
+                <input type="email" placeholder="tu@empresa.com" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required />
               </div>
             </label>
             <label className="field-label">
@@ -73,6 +118,9 @@ export function LoginPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
                   required
                 />
                 <button
@@ -89,6 +137,8 @@ export function LoginPage() {
                 <input
                   type="checkbox"
                   className="accent-[var(--color-brand)]"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
                 />{" "}
                 Recordarme
               </label>
@@ -97,11 +147,13 @@ export function LoginPage() {
               </a>
             </div>
             <button
-              className="btn-primary mt-2 w-full justify-center"
+              className="btn-primary mt-2 w-full justify-center disabled:cursor-wait disabled:opacity-60"
               type="submit"
+              disabled={isSubmitting}
             >
-              Iniciar sesión
+              {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
             </button>
+            {submitError && <span className="sr-only" role="alert">{submitError}</span>}
           </form>
           <p className="mt-7 text-center text-xs text-[var(--color-muted)]">
             ¿Aún no tienes cuenta?{" "}
