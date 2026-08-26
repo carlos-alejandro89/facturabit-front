@@ -21,6 +21,8 @@ import useSound from "use-sound";
 import officialIsotype from "../../../assets/brand/facturabit-isotipo-official.png";
 import pepeDashboardWelcome from "../../../assets/brand/pepe-dashboard-official.png";
 import { Brand } from "../../../shared/components/Brand";
+import { DashboardSummarySkeleton } from "../../../shared/components/Skeleton";
+import { useInitialLoading } from "../../../shared/hooks/useInitialLoading";
 import { EmittersPage } from "../../emitters/pages/EmittersPage";
 import { DocumentsPage } from "../../documents/pages/DocumentsPage";
 import { clearSession, getSession } from "../../auth/services/authService";
@@ -88,6 +90,7 @@ export function DashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState<"summary" | "documents" | "emitters">("summary");
+  const isSummaryLoading = useInitialLoading();
   const firstName = session?.fullName.trim().split(/\s+/)[0] || registration?.fullName.trim().split(/\s+/)[0] || "Usuario";
   const initials = session?.fullName
     .trim()
@@ -144,14 +147,14 @@ export function DashboardPage() {
             <Settings /> {!sidebarCollapsed && <span>Configuración</span>}
           </button>
         </nav>
-        {!sidebarCollapsed && <div className="mt-auto rounded-xl border border-[var(--color-border)] bg-white p-3.5">
-          <p className="text-[.58rem] font-semibold uppercase tracking-[.12em] text-[var(--color-muted)]">
-            Cuenta actual
+        {!sidebarCollapsed && <div className="organization-gold-card mt-auto rounded-xl p-3.5">
+          <p className="text-[.58rem] font-bold uppercase tracking-[.12em] text-[var(--color-brand-deep)]/70">
+            Organización
           </p>
-          <p className="mt-2 text-xs font-semibold">
+          <p className="mt-2 text-xs font-bold text-[var(--color-brand-deep)]">
             {session?.redComercial.nombreRedComercial || registration?.businessName || "FacturaBit"}
           </p>
-          <p className="mt-1 text-[.65rem] text-[var(--color-muted)]">
+          <p className="mt-1 text-[.65rem] font-semibold text-[var(--color-brand-deep)]/75">
             {registration?.planName || session?.rol || "Cuenta activa"}
           </p>
         </div>}
@@ -205,7 +208,9 @@ export function DashboardPage() {
           ) : activeView === "emitters" ? (
             <EmittersPage />
           ) : (
-          <>
+          isSummaryLoading ? (
+            <DashboardSummarySkeleton />
+          ) : <>
           {planActivated && (
             <div className="mb-6 flex items-center gap-3 rounded-2xl border border-[var(--color-mint)]/40 bg-[var(--color-success-soft)] px-5 py-4 text-sm text-[var(--color-brand)]">
               <CheckCircle2 size={19} className="text-[var(--color-success)]" />

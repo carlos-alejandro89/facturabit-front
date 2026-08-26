@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import { ProtectedRoute } from "./features/auth/components/ProtectedRoute";
+import { PublicOnlyRoute } from "./features/auth/components/PublicOnlyRoute";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
 import { DevelopersPage } from "./features/developers/pages/DevelopersPage";
 import { LandingPage } from "./features/landing/pages/LandingPage";
@@ -25,7 +26,9 @@ export default function App() {
       />
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
         <Route path="/registro" element={<SignUpPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/panel/*" element={<DashboardPage />} />

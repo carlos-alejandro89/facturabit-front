@@ -1,7 +1,11 @@
 import { ArrowLeft, Building2, Mail, MapPin, Phone, Save } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { PanelPageHeader } from "../../../shared/components/PanelPageHeader";
 import type { EmitterSummary } from "./EmitterCard";
+import { upsertFiscalEntity } from "../services/emitterService";
+import { getSatRegimenesFiscales, type SatRegimenFiscal } from "../services/satRegimenFiscalService";
+import { FormDataSkeleton } from "../../../shared/components/Skeleton";
 
 interface AddEmitterFormProps {
   onBack: () => void;
@@ -23,6 +27,7 @@ interface EmitterFormData {
   neighborhood: string;
   city: string;
   state: string;
+  taxRegimeId: string;
 }
 
 const initialForm: EmitterFormData = {
@@ -39,6 +44,7 @@ const initialForm: EmitterFormData = {
   neighborhood: "",
   city: "",
   state: "",
+  taxRegimeId: "",
 };
 
 export function AddEmitterForm({ onBack, onCreated, initialEmitter }: AddEmitterFormProps) {
@@ -49,24 +55,82 @@ export function AddEmitterForm({ onBack, onCreated, initialEmitter }: AddEmitter
     commercialName: initialEmitter?.commercialName ?? "",
     rfc: initialEmitter?.rfc ?? "",
     taxRegime: initialEmitter?.taxRegime ?? "",
+    taxRegimeId: initialEmitter?.taxRegimeId?.toString() ?? "",
     postalCode: initialEmitter?.postalCode ?? "",
+    email: initialEmitter?.email ?? "",
+    phone: initialEmitter?.phone ?? "",
+    street: initialEmitter?.street ?? "",
+    exteriorNumber: initialEmitter?.exteriorNumber ?? "",
+    interiorNumber: initialEmitter?.interiorNumber ?? "",
+    neighborhood: initialEmitter?.neighborhood ?? "",
+    city: initialEmitter?.city ?? "",
+    state: initialEmitter?.state ?? "",
   }));
+  const [isSaving, setIsSaving] = useState(false);
+  const [taxRegimes, setTaxRegimes] = useState<SatRegimenFiscal[]>([]);
+  const [isLoadingTaxRegimes, setIsLoadingTaxRegimes] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getSatRegimenesFiscales(controller.signal)
+      .then(setTaxRegimes)
+      .catch((error: unknown) => {
+        if (error instanceof Error && error.name === "AbortError") return;
+        toast.error(error instanceof Error ? error.message : "No fue posible cargar los regímenes fiscales.");
+      })
+      .finally(() => setIsLoadingTaxRegimes(false));
+    return () => controller.abort();
+  }, []);
 
   const updateField = (field: keyof EmitterFormData, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onCreated({
-      id: initialEmitter?.id ?? crypto.randomUUID(),
-      businessName: form.businessName.trim().toUpperCase(),
-      commercialName: form.commercialName.trim() || form.businessName.trim(),
-      rfc: form.rfc.trim().toUpperCase(),
-      taxRegime: form.taxRegime,
-      postalCode: form.postalCode,
-      certificateStatus: initialEmitter?.certificateStatus ?? "Pendiente",
-    });
+    setIsSaving(true);
+    try {
+      const entity = await upsertFiscalEntity({
+        guid: initialEmitter?.id,
+        razonSocial: form.businessName.trim(),
+        nombreComercial: form.commercialName.trim(),
+        rfc: form.rfc.trim(),
+        satRegimenFiscalId: Number(form.taxRegimeId),
+        codigoPostal: form.postalCode,
+        correoComercial: form.email.trim(),
+        telefonoComercial: form.phone.trim(),
+        calle: form.street.trim(),
+        numExt: form.exteriorNumber.trim(),
+        numInt: form.interiorNumber.trim(),
+        colonia: form.neighborhood.trim(),
+        ciudad: form.city.trim(),
+        estado: form.state.trim(),
+      });
+      const taxRegime = [entity.satRegimenFiscalClave, entity.satRegimenFiscalNombre].filter(Boolean).join(" · ");
+      onCreated({
+        id: entity.guid,
+        businessName: entity.razonSocial,
+        commercialName: entity.nombreComercial || entity.razonSocial,
+        rfc: entity.rfc,
+        taxRegime: taxRegime || form.taxRegime,
+        taxRegimeId: entity.satRegimenFiscalId ?? undefined,
+        postalCode: entity.codigoPostal,
+        certificateStatus: initialEmitter?.certificateStatus ?? "Pendiente",
+        email: entity.correoComercial ?? "",
+        phone: entity.telefonoComercial ?? "",
+        street: entity.calle ?? "",
+        exteriorNumber: entity.numExt ?? "",
+        interiorNumber: entity.numInt ?? "",
+        neighborhood: entity.colonia ?? "",
+        city: entity.ciudad ?? "",
+        state: entity.estado ?? "",
+      });
+      toast.success(isEditing ? "Emisor actualizado correctamente." : "Emisor creado correctamente.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No fue posible guardar el emisor.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -79,6 +143,7 @@ export function AddEmitterForm({ onBack, onCreated, initialEmitter }: AddEmitter
         backLabel="Volver a emisores"
       />
 
+      {isLoadingTaxRegimes ? <FormDataSkeleton /> :
       <form className="mt-5 space-y-4 pb-24" onSubmit={submit}>
         <section className="rounded-2xl border border-[var(--color-border)] bg-white p-4 sm:p-5">
           <div className="mb-4 flex items-center gap-2.5 border-b border-[var(--color-border)] pb-3">
@@ -89,7 +154,7 @@ export function AddEmitterForm({ onBack, onCreated, initialEmitter }: AddEmitter
             <label className="field-label">Razón social<div className="field mt-1.5"><input value={form.businessName} onChange={(event) => updateField("businessName", event.target.value)} placeholder="Vertex Contable, S.A. de C.V." maxLength={200} required /></div></label>
             <label className="field-label">Nombre comercial<div className="field mt-1.5"><input value={form.commercialName} onChange={(event) => updateField("commercialName", event.target.value)} placeholder="Vertex Contable" maxLength={200} /></div></label>
             <label className="field-label">RFC<div className="field mt-1.5"><input value={form.rfc} onChange={(event) => updateField("rfc", event.target.value.toUpperCase())} placeholder="VCO240101AB1" minLength={12} maxLength={13} pattern="[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}" required /></div></label>
-            <label className="field-label">Régimen fiscal<select value={form.taxRegime} onChange={(event) => updateField("taxRegime", event.target.value)} className="mt-1.5 w-full rounded-[.7rem] border border-[#e4e9e6] bg-white px-3 py-[.78rem] text-xs outline-none focus:border-[var(--color-brand)]/50" required><option value="">Selecciona un régimen</option><option value="601 · General de Ley Personas Morales">601 · General de Ley Personas Morales</option><option value="603 · Personas Morales con Fines no Lucrativos">603 · Personas Morales con Fines no Lucrativos</option><option value="605 · Sueldos y Salarios">605 · Sueldos y Salarios</option><option value="612 · Personas Físicas con Actividades Empresariales">612 · Personas Físicas con Actividades Empresariales</option><option value="626 · Régimen Simplificado de Confianza">626 · Régimen Simplificado de Confianza</option></select></label>
+            <label className="field-label">Régimen fiscal<select value={form.taxRegimeId} onChange={(event) => { const selected = taxRegimes.find((regime) => regime.id === Number(event.target.value)); updateField("taxRegimeId", event.target.value); updateField("taxRegime", selected ? `${selected.clave} · ${selected.nombre}` : ""); }} disabled={isLoadingTaxRegimes || taxRegimes.length === 0} className="mt-1.5 w-full rounded-[.7rem] border border-[#e4e9e6] bg-white px-3 py-[.78rem] text-xs outline-none focus:border-[var(--color-brand)]/50 disabled:cursor-wait disabled:bg-[#f7f9f8] disabled:text-[var(--color-muted)]" required><option value="">{isLoadingTaxRegimes ? "Cargando regímenes fiscales…" : taxRegimes.length === 0 ? "Catálogo no disponible" : "Selecciona un régimen"}</option>{taxRegimes.map((regime) => <option key={regime.guid} value={regime.id}>{regime.clave} · {regime.nombre}</option>)}</select></label>
           </div>
         </section>
 
@@ -118,9 +183,10 @@ export function AddEmitterForm({ onBack, onCreated, initialEmitter }: AddEmitter
 
         <div className="dashboard-action-bar flex items-center justify-between gap-4 border-t border-[var(--color-border)] bg-white/95 px-5 py-3 backdrop-blur-xl sm:px-7">
           <button type="button" onClick={onBack} className="flex items-center gap-2 px-2 py-2 text-xs font-medium text-[var(--color-muted)] hover:text-[var(--color-brand)]"><ArrowLeft size={15} /> Cancelar</button>
-          <button type="submit" className="btn-primary min-w-44 justify-center"><Save size={15} /> {isEditing ? "Guardar cambios" : "Guardar emisor"}</button>
+          <button type="submit" disabled={isSaving} className="btn-primary min-w-44 justify-center disabled:cursor-wait disabled:opacity-60"><Save size={15} /> {isSaving ? "Guardando…" : isEditing ? "Guardar cambios" : "Guardar emisor"}</button>
         </div>
       </form>
+      }
     </div>
   );
 }

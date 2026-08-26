@@ -8,6 +8,15 @@ export interface EmitterSummary {
   taxRegime: string;
   postalCode: string;
   certificateStatus: "Vigente" | "Pendiente";
+  taxRegimeId?: number;
+  email?: string;
+  phone?: string;
+  street?: string;
+  exteriorNumber?: string;
+  interiorNumber?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
 }
 
 interface EmitterCardProps {

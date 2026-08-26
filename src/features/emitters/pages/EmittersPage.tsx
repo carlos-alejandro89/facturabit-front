@@ -1,20 +1,53 @@
 import { EllipsisVertical, Plus, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { EmitterCard, type EmitterSummary } from "../components/EmitterCard";
 import { EmitterConfiguration } from "../components/EmitterConfiguration";
 import { AddEmitterForm } from "../components/AddEmitterForm";
 import { PanelHeaderButton, PanelHeaderIconButton, PanelPageHeader } from "../../../shared/components/PanelPageHeader";
+import { getFiscalEntities, type FiscalEntity } from "../services/emitterService";
+import { EmitterCardsSkeleton } from "../../../shared/components/Skeleton";
 
-const emitters: EmitterSummary[] = [
-  { id: "1", businessName: "PENDIENTE DE CONFIGURAR", commercialName: "Emisor principal", rfc: "PEND000000001", taxRegime: "601 · General de Ley Personas Morales", postalCode: "00000", certificateStatus: "Pendiente" },
-  { id: "2", businessName: "VERTEX CONTABLE, S.A. DE C.V.", commercialName: "Vertex Contable", rfc: "VCO240101AB1", taxRegime: "601 · General de Ley Personas Morales", postalCode: "06600", certificateStatus: "Vigente" },
-];
+function mapEntity(entity: FiscalEntity): EmitterSummary {
+  const regime = [entity.satRegimenFiscalClave, entity.satRegimenFiscalNombre].filter(Boolean).join(" · ");
+  return {
+    id: entity.guid,
+    businessName: entity.razonSocial,
+    commercialName: entity.nombreComercial || entity.razonSocial,
+    rfc: entity.rfc,
+    taxRegime: regime || "Sin régimen fiscal",
+    taxRegimeId: entity.satRegimenFiscalId ?? undefined,
+    postalCode: entity.codigoPostal,
+    certificateStatus: entity.certificadoVigente ? "Vigente" : "Pendiente",
+    email: entity.correoComercial ?? "",
+    phone: entity.telefonoComercial ?? "",
+    street: entity.calle ?? "",
+    exteriorNumber: entity.numExt ?? "",
+    interiorNumber: entity.numInt ?? "",
+    neighborhood: entity.colonia ?? "",
+    city: entity.ciudad ?? "",
+    state: entity.estado ?? "",
+  };
+}
 
 export function EmittersPage() {
-  const [emitterList, setEmitterList] = useState(emitters);
+  const [emitterList, setEmitterList] = useState<EmitterSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedEmitter, setSelectedEmitter] = useState<EmitterSummary>();
   const [isAddingEmitter, setIsAddingEmitter] = useState(false);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getFiscalEntities(controller.signal)
+      .then((entities) => setEmitterList(entities.map(mapEntity)))
+      .catch((error: unknown) => {
+        if (error instanceof Error && error.name === "AbortError") return;
+        toast.error(error instanceof Error ? error.message : "No fue posible cargar los emisores.");
+      })
+      .finally(() => setIsLoading(false));
+    return () => controller.abort();
+  }, []);
 
   if (isAddingEmitter) {
     return (
@@ -66,6 +99,8 @@ export function EmittersPage() {
         <input value={query} onChange={(event) => setQuery(event.target.value)} className="w-full border-0 bg-transparent py-3 text-xs outline-none" placeholder="Buscar por nombre o RFC" />
       </div>
       <div className="mt-6 grid max-w-[70rem] gap-4">
+        {isLoading && <EmitterCardsSkeleton />}
+        {!isLoading && filteredEmitters.length === 0 && <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-white py-12 text-center text-xs text-[var(--color-muted)]">No encontramos emisores para esta organización.</p>}
         {filteredEmitters.map((emitter) => <EmitterCard key={emitter.id} emitter={emitter} onConfigure={setSelectedEmitter} />)}
       </div>
     </div>
