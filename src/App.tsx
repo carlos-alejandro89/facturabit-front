@@ -4,7 +4,7 @@ import { LoginPage } from "./features/auth/pages/LoginPage";
 import { ProtectedRoute } from "./features/auth/components/ProtectedRoute";
 import { PublicOnlyRoute } from "./features/auth/components/PublicOnlyRoute";
 import { DashboardPage } from "./features/dashboard/pages/DashboardPage";
-import { DevelopersPage } from "./features/developers/pages/DevelopersPage";
+import { DeveloperTopicPage } from "./features/developers/pages/DeveloperTopicPage";
 import { LandingPage } from "./features/landing/pages/LandingPage";
 import { SignUpPage } from "./features/signup/pages/SignUpPage";
 
@@ -33,7 +33,11 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/panel/*" element={<DashboardPage />} />
         </Route>
-        <Route path="/desarrolladores" element={<DevelopersPage />} />
+        <Route
+          path="/desarrolladores"
+          element={<Navigate to="/desarrolladores/autenticacion" replace />}
+        />
+        <Route path="/desarrolladores/:topic" element={<DeveloperTopicPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

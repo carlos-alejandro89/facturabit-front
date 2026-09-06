@@ -6,25 +6,26 @@ import {
   FileCheck2,
   FilePlus2,
   LayoutDashboard,
+  KeyRound,
   LogOut,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
   ReceiptText,
   Search,
-  Settings,
   Users,
 } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSound from "use-sound";
-import officialIsotype from "../../../assets/brand/facturabit-isotipo-official.png";
+import officialIsotype from "../../../assets/brand/facturabit-app-icon-v2.png";
 import pepeDashboardWelcome from "../../../assets/brand/pepe-dashboard-official.png";
 import { Brand } from "../../../shared/components/Brand";
 import { DashboardSummarySkeleton } from "../../../shared/components/Skeleton";
 import { useInitialLoading } from "../../../shared/hooks/useInitialLoading";
 import { EmittersPage } from "../../emitters/pages/EmittersPage";
 import { DocumentsPage } from "../../documents/pages/DocumentsPage";
+import { ApiIntegrationsPage } from "../../integrations/pages/ApiIntegrationsPage";
 import { clearSession, getSession } from "../../auth/services/authService";
 import { createLogoutSoundDataUri } from "../../auth/utils/errorSound";
 import {
@@ -89,7 +90,7 @@ export function DashboardPage() {
   const [planActivated, setPlanActivated] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeView, setActiveView] = useState<"summary" | "documents" | "emitters">("summary");
+  const [activeView, setActiveView] = useState<"summary" | "documents" | "emitters" | "integrations">("summary");
   const isSummaryLoading = useInitialLoading();
   const firstName = session?.fullName.trim().split(/\s+/)[0] || registration?.fullName.trim().split(/\s+/)[0] || "Usuario";
   const initials = session?.fullName
@@ -143,8 +144,8 @@ export function DashboardPage() {
           <button type="button" onClick={() => { setActiveView("emitters"); setShowPayment(false); setMobileMenuOpen(false); }} className={`sidebar-link w-full ${activeView === "emitters" ? "active" : ""} ${sidebarCollapsed ? "justify-center px-0" : ""}`} title="Emisores">
             <Users /> {!sidebarCollapsed && <span>Emisores</span>}
           </button>
-          <button type="button" className={`sidebar-link w-full ${sidebarCollapsed ? "justify-center px-0" : ""}`} title="Configuración">
-            <Settings /> {!sidebarCollapsed && <span>Configuración</span>}
+          <button type="button" onClick={() => { setActiveView("integrations"); setShowPayment(false); setMobileMenuOpen(false); }} className={`sidebar-link w-full ${activeView === "integrations" ? "active" : ""} ${sidebarCollapsed ? "justify-center px-0" : ""}`} title="Integraciones API">
+            <KeyRound /> {!sidebarCollapsed && <span>Integraciones API</span>}
           </button>
         </nav>
         {!sidebarCollapsed && <div className="organization-gold-card mt-auto rounded-xl p-3.5">
@@ -207,6 +208,8 @@ export function DashboardPage() {
             <DocumentsPage />
           ) : activeView === "emitters" ? (
             <EmittersPage />
+          ) : activeView === "integrations" ? (
+            <ApiIntegrationsPage />
           ) : (
           isSummaryLoading ? (
             <DashboardSummarySkeleton />

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import officialLogo from "../../assets/brand/facturabit-logo-official.png";
-import inverseLogo from "../../assets/brand/facturabit-logo-inverse.png";
+import officialLogo from "../../assets/brand/facturabit-logo-primary-v2.png";
+import inverseLogo from "../../assets/brand/facturabit-logo-inverse-v2.png";
 
 export function Brand({ inverse = false }: { inverse?: boolean }) {
   return (
@@ -14,8 +14,8 @@ export function Brand({ inverse = false }: { inverse?: boolean }) {
         alt="FacturaBit · Factura. Gestiona. Crece."
         className={
           inverse
-            ? "h-16 w-auto object-contain sm:h-20"
-            : "h-11 w-auto object-contain sm:h-12"
+            ? "h-14 w-auto object-contain sm:h-16"
+            : "h-10 w-auto object-contain mix-blend-multiply sm:h-11"
         }
       />
     </Link>

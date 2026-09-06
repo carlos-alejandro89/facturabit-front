@@ -129,6 +129,8 @@ export function DocumentsPage() {
     receiverRfc: document.rfc,
     status: document.status,
     message: document.message,
+    issuedAt: document.issuedAt,
+    total: document.total,
   });
 
   const showXml = async (document: FiscalDocument) => {
@@ -205,7 +207,12 @@ export function DocumentsPage() {
                   <td className="px-5 py-4 text-[.68rem] text-[var(--color-muted)]">{document.issuedAt}</td>
                   <td className="px-5 py-4 text-xs font-semibold">{document.total} <small className="font-normal text-[var(--color-muted)]">MXN</small></td>
                   <td className="px-5 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-[.6rem] font-medium ${statusStyles[document.status]}`}>{document.status}</span></td>
-                  <td className="px-5 py-4"><button type="button" onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); setRowMenu((current) => current?.id === document.id ? undefined : { id: document.id, top: rect.bottom + 6, right: window.innerWidth - rect.right }); }} className="grid size-8 place-items-center rounded-lg text-[var(--color-muted)] transition hover:bg-[var(--color-paper)] hover:text-[var(--color-brand)]" aria-label={`Opciones de ${document.folio}`}><EllipsisVertical size={15} /></button></td>
+                  <td className="relative px-5 py-4"><div className="flex justify-end"><div className={`absolute right-[3.65rem] top-1/2 z-10 flex -translate-y-1/2 items-center overflow-visible rounded-full border border-[var(--color-border)] bg-white p-1 shadow-[0_8px_24px_rgba(8,52,46,.12)] transition-all duration-200 ease-out ${rowMenu?.id === document.id ? "visible translate-x-0 opacity-100" : "invisible translate-x-2 opacity-0"}`}>
+                    <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); toast.warning("La representación PDF aún no está disponible para este comprobante."); }} className="grid size-8 place-items-center rounded-full text-[#c84b3f] transition hover:bg-[#fff0ed]" aria-label="Abrir PDF"><FileText size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">PDF</span></span>
+                    <span className="group/action relative"><button type="button" onClick={() => showXml(document)} disabled={!document.hasXml} className="grid size-8 place-items-center rounded-full text-[var(--color-success)] transition hover:bg-[var(--color-success-soft)] disabled:cursor-not-allowed disabled:opacity-35" aria-label="Abrir XML"><FileCode2 size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">XML</span></span>
+                    <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); toast.warning("El flujo de cancelación solicitará el motivo antes de enviarse al SAT."); }} className="grid size-8 place-items-center rounded-full text-[#a84940] transition hover:bg-[#fff0ed]" aria-label="Cancelar CFDI"><Ban size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">Cancelar</span></span>
+                    <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); setDetailModal({ kind: "pac", document }); }} className="grid size-8 place-items-center rounded-full text-[var(--color-brand)] transition hover:bg-[var(--color-success-soft)]" aria-label="Ver respuesta del PAC"><MessageSquareText size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] right-0 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">Respuesta PAC</span></span>
+                  </div><button type="button" onClick={() => setRowMenu((current) => current?.id === document.id ? undefined : { id: document.id, top: 0, right: 0 })} className={`grid size-8 place-items-center rounded-lg transition ${rowMenu?.id === document.id ? "bg-[var(--color-brand)] text-white shadow-[0_5px_14px_rgba(9,74,66,.18)]" : "text-[var(--color-muted)] hover:bg-[var(--color-paper)] hover:text-[var(--color-brand)]"}`} aria-label={`Opciones de ${document.folio}`}><EllipsisVertical size={15} /></button></div></td>
                 </tr>
               ))}
             </tbody>
@@ -235,18 +242,6 @@ export function DocumentsPage() {
           </article>
         ))}
       </div>
-
-      {rowMenu && (() => {
-        const document = documents.find((item) => item.id === rowMenu.id);
-        if (!document) return null;
-        return <div className="fixed z-40 w-48 overflow-hidden rounded-xl border border-[var(--color-border)] bg-white p-1.5 shadow-[0_14px_40px_rgba(8,52,46,.16)]" style={{ top: rowMenu.top, right: rowMenu.right }}>
-          <button type="button" onClick={() => { setRowMenu(undefined); toast.warning("La representación PDF aún no está disponible para este comprobante."); }} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[.67rem] text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"><FileText size={14} className="text-[#d04a3a]" />PDF</button>
-          <button type="button" onClick={() => showXml(document)} disabled={!document.hasXml} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[.67rem] text-[var(--color-ink)] transition hover:bg-[var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-40"><FileCode2 size={14} className="text-[var(--color-success)]" />XML</button>
-          <button type="button" onClick={() => { setRowMenu(undefined); toast.warning("El flujo de cancelación solicitará el motivo antes de enviarse al SAT."); }} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[.67rem] text-[#a84940] transition hover:bg-[#fff2ef]"><Ban size={14} />Cancelar</button>
-          <div className="my-1 border-t border-[var(--color-border)]" />
-          <button type="button" onClick={() => { setRowMenu(undefined); setDetailModal({ kind: "pac", document }); }} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[.67rem] text-[var(--color-ink)] transition hover:bg-[var(--color-success-soft)]"><MessageSquareText size={14} className="text-[var(--color-brand)]" />Respuesta PAC</button>
-        </div>;
-      })()}
 
       {detailModal && <DocumentDetailModal kind={detailModal.kind} document={modalDocument(detailModal.document)} xml={detailModal.xml} fileName={detailModal.fileName} isLoading={detailModal.loading} onClose={() => setDetailModal(undefined)} />}
     </div>
