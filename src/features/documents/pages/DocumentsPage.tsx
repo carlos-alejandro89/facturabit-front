@@ -20,9 +20,10 @@ import { toast } from "sonner";
 import { PanelHeaderButton, PanelHeaderIconButton, PanelPageHeader } from "../../../shared/components/PanelPageHeader";
 import { DocumentsTableSkeleton } from "../../../shared/components/Skeleton";
 import { getFiscalEntities, type FiscalEntity } from "../../emitters/services/emitterService";
-import { getFiscalDocuments, getFiscalDocumentXml, type FiscalDocumentRecord } from "../services/documentService";
+import { cancelFiscalDocument, getCancellationReceiptPdf, getFiscalDocumentPdf, getFiscalDocuments, getFiscalDocumentXml, type FiscalDocumentRecord } from "../services/documentService";
 import { IssuerFilterPicker } from "../components/IssuerFilterPicker";
 import { DocumentDetailModal, type DocumentModalData } from "../components/DocumentDetailModal";
+import { CancelDocumentModal } from "../components/CancelDocumentModal";
 
 type DocumentStatus = "Vigente" | "Cancelado" | "En proceso" | "Error";
 
@@ -41,6 +42,7 @@ interface FiscalDocument {
   uuid?: string | null;
   message: string;
   hasXml: boolean;
+  hasReceipt: boolean;
 }
 
 const filters = ["Todos", "Vigente", "En proceso", "Cancelado", "Error"] as const;
@@ -76,6 +78,7 @@ function mapDocument(document: FiscalDocumentRecord): FiscalDocument {
     uuid: document.folioFiscal,
     message: document.mensaje,
     hasXml: Boolean(document.pathXmlCfdi),
+    hasReceipt: document.tieneAcuse,
   };
 }
 
@@ -91,6 +94,9 @@ export function DocumentsPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [rowMenu, setRowMenu] = useState<{ id: string; top: number; right: number }>();
   const [detailModal, setDetailModal] = useState<{ kind: "pac" | "xml"; document: FiscalDocument; xml?: string; fileName?: string; loading?: boolean }>();
+  const [cancelDocument, setCancelDocument] = useState<FiscalDocument>();
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -110,7 +116,7 @@ export function DocumentsPage() {
         .finally(() => { if (!controller.signal.aborted) setIsLoading(false); });
     }, 250);
     return () => { window.clearTimeout(timeout); controller.abort(); };
-  }, [activeFilter, page, query, selectedIssuer]);
+  }, [activeFilter, page, query, selectedIssuer, refreshKey]);
 
   const filteredDocuments = useMemo(() => documents, [documents]);
   const metrics = useMemo(() => ({
@@ -142,6 +148,48 @@ export function DocumentsPage() {
     } catch (error) {
       setDetailModal(undefined);
       toast.error(error instanceof Error ? error.message : "No fue posible consultar el XML.");
+    }
+  };
+
+  const openPdf = async (document: FiscalDocument, receipt = false) => {
+    setRowMenu(undefined);
+    const preview = window.open("", "_blank");
+    try {
+      const blob = receipt ? await getCancellationReceiptPdf(document.id) : await getFiscalDocumentPdf(document.id);
+      const url = URL.createObjectURL(blob);
+      if (preview) preview.location.href = url;
+      else window.open(url, "_blank", "noopener,noreferrer");
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (error) {
+      preview?.close();
+      toast.error(error instanceof Error ? error.message : "No fue posible abrir el documento.");
+    }
+  };
+
+  const confirmCancellation = async (motivo: string, folioSustitucion?: string) => {
+    if (!cancelDocument?.uuid) return;
+    const preview = window.open("", "_blank");
+    setIsCancelling(true);
+    try {
+      const result = await cancelFiscalDocument(cancelDocument.uuid, motivo, folioSustitucion);
+      if (result.data.cancelado && result.data.acusePdfBase64) {
+        const bytes = Uint8Array.from(atob(result.data.acusePdfBase64), (character) => character.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+        if (preview) preview.location.href = url;
+        else window.open(url, "_blank", "noopener,noreferrer");
+        window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        toast.success(result.message ?? "CFDI cancelado correctamente.");
+      } else {
+        preview?.close();
+        toast.warning(result.message ?? "La cancelación todavía no ha sido confirmada por el SAT.");
+      }
+      setCancelDocument(undefined);
+      setRefreshKey((current) => current + 1);
+    } catch (error) {
+      preview?.close();
+      toast.error(error instanceof Error ? error.message : "No fue posible cancelar el CFDI.");
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -208,9 +256,9 @@ export function DocumentsPage() {
                   <td className="px-5 py-4 text-xs font-semibold">{document.total} <small className="font-normal text-[var(--color-muted)]">MXN</small></td>
                   <td className="px-5 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-[.6rem] font-medium ${statusStyles[document.status]}`}>{document.status}</span></td>
                   <td className="relative px-5 py-4"><div className="flex justify-end"><div className={`absolute right-[3.65rem] top-1/2 z-10 flex -translate-y-1/2 items-center overflow-visible rounded-full border border-[var(--color-border)] bg-white p-1 shadow-[0_8px_24px_rgba(8,52,46,.12)] transition-all duration-200 ease-out ${rowMenu?.id === document.id ? "visible translate-x-0 opacity-100" : "invisible translate-x-2 opacity-0"}`}>
-                    <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); toast.warning("La representación PDF aún no está disponible para este comprobante."); }} className="grid size-8 place-items-center rounded-full text-[#c84b3f] transition hover:bg-[#fff0ed]" aria-label="Abrir PDF"><FileText size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">PDF</span></span>
+                    <span className="group/action relative"><button type="button" onClick={() => openPdf(document)} disabled={!document.hasXml} className="grid size-8 place-items-center rounded-full text-[#c84b3f] transition hover:bg-[#fff0ed] disabled:cursor-not-allowed disabled:opacity-35" aria-label="Abrir PDF"><FileText size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">PDF</span></span>
                     <span className="group/action relative"><button type="button" onClick={() => showXml(document)} disabled={!document.hasXml} className="grid size-8 place-items-center rounded-full text-[var(--color-success)] transition hover:bg-[var(--color-success-soft)] disabled:cursor-not-allowed disabled:opacity-35" aria-label="Abrir XML"><FileCode2 size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">XML</span></span>
-                    <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); toast.warning("El flujo de cancelación solicitará el motivo antes de enviarse al SAT."); }} className="grid size-8 place-items-center rounded-full text-[#a84940] transition hover:bg-[#fff0ed]" aria-label="Cancelar CFDI"><Ban size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">Cancelar</span></span>
+                    {document.status === "Cancelado" ? <span className="group/action relative"><button type="button" onClick={() => openPdf(document, true)} disabled={!document.hasReceipt} className="grid size-8 place-items-center rounded-full text-[#a96f00] transition hover:bg-[var(--color-accent)]/15 disabled:cursor-not-allowed disabled:opacity-35" aria-label="Ver acuse"><FileText size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">Ver acuse</span></span> : <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); if (document.uuid) setCancelDocument(document); else toast.warning("Este CFDI todavía no cuenta con UUID para solicitar su cancelación."); }} className="grid size-8 place-items-center rounded-full text-[#a84940] transition hover:bg-[#fff0ed]" aria-label="Cancelar CFDI"><Ban size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">Cancelar</span></span>}
                     <span className="group/action relative"><button type="button" onClick={() => { setRowMenu(undefined); setDetailModal({ kind: "pac", document }); }} className="grid size-8 place-items-center rounded-full text-[var(--color-brand)] transition hover:bg-[var(--color-success-soft)]" aria-label="Ver respuesta del PAC"><MessageSquareText size={15} strokeWidth={1.8} /></button><span className="pointer-events-none absolute bottom-[calc(100%+.5rem)] right-0 whitespace-nowrap rounded-lg bg-[#171918] px-2.5 py-1.5 text-[.55rem] font-medium text-white opacity-0 shadow-lg transition group-hover/action:opacity-100">Respuesta PAC</span></span>
                   </div><button type="button" onClick={() => setRowMenu((current) => current?.id === document.id ? undefined : { id: document.id, top: 0, right: 0 })} className={`grid size-8 place-items-center rounded-lg transition ${rowMenu?.id === document.id ? "bg-[var(--color-brand)] text-white shadow-[0_5px_14px_rgba(9,74,66,.18)]" : "text-[var(--color-muted)] hover:bg-[var(--color-paper)] hover:text-[var(--color-brand)]"}`} aria-label={`Opciones de ${document.folio}`}><EllipsisVertical size={15} /></button></div></td>
                 </tr>
@@ -244,6 +292,7 @@ export function DocumentsPage() {
       </div>
 
       {detailModal && <DocumentDetailModal kind={detailModal.kind} document={modalDocument(detailModal.document)} xml={detailModal.xml} fileName={detailModal.fileName} isLoading={detailModal.loading} onClose={() => setDetailModal(undefined)} />}
+      {cancelDocument?.uuid && <CancelDocumentModal folio={cancelDocument.folio} uuid={cancelDocument.uuid} submitting={isCancelling} onClose={() => !isCancelling && setCancelDocument(undefined)} onConfirm={confirmCancellation} />}
     </div>
   );
 }

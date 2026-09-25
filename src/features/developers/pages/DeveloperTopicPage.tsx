@@ -209,13 +209,11 @@ const cancelCfdiRequestExample = `curl --request POST \\
   --header 'Authorization: Bearer TU_ACCESS_TOKEN' \\
   --header 'Content-Type: application/json' \\
   --data '{
-    "rfc": "AAA010101AAA",
     "uuid": "11111111-2222-3333-4444-555555555555",
     "motivo": "02"
   }'`;
 
 const cancelCfdiReplacementExample = `{
-  "rfc": "AAA010101AAA",
   "uuid": "11111111-2222-3333-4444-555555555555",
   "motivo": "01",
   "folioSustitucion": "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
@@ -262,10 +260,9 @@ function CancelCfdiDocument() {
         <CodeBlock code={cancelCfdiRequestExample} language="bash" />
       </DocsSection>
 
-      <DocsSection title="Campos de la solicitud" description="El CFDI debe pertenecer al RFC y a la organización asociada con tus credenciales.">
+      <DocsSection title="Campos de la solicitud" description="FacturaBit obtiene los RFC del emisor y receptor desde el comprobante asociado con el UUID dentro de tu organización.">
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white">
           {[
-            ["rfc", "string", "Sí", "RFC del emisor del comprobante. Máximo 13 caracteres."],
             ["uuid", "uuid", "Sí", "Folio fiscal del CFDI que se desea cancelar."],
             ["motivo", "string", "Sí", "Motivo SAT de cancelación: 01, 02, 03 o 04."],
             ["folioSustitucion", "uuid", "Condicional", "UUID del comprobante que sustituye al original. Requerido únicamente con motivo 01."],
