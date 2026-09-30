@@ -18,7 +18,7 @@ import {
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useSound from "use-sound";
-import officialIsotype from "../../../assets/brand/facturabit-app-icon-v2.png";
+import officialIsotype from "../../../assets/brand/cart-app-icon.png";
 import pepeDashboardWelcome from "../../../assets/brand/pepe-dashboard-official.png";
 import { Brand } from "../../../shared/components/Brand";
 import { DashboardSummarySkeleton } from "../../../shared/components/Skeleton";
@@ -127,8 +127,8 @@ export function DashboardPage() {
           {sidebarCollapsed ? (
             <img
               src={officialIsotype}
-              alt="FacturaBit"
-              className="size-9 rounded-[.7rem] object-contain"
+              alt="Carti"
+              className="size-9 object-contain"
             />
           ) : (
             <Brand />
@@ -153,7 +153,7 @@ export function DashboardPage() {
             Organización
           </p>
           <p className="mt-2 text-xs font-bold text-[var(--color-brand-deep)]">
-            {session?.redComercial.nombreRedComercial || registration?.businessName || "FacturaBit"}
+            {session?.redComercial.nombreRedComercial || registration?.businessName || "Carti"}
           </p>
           <p className="mt-1 text-[.65rem] font-semibold text-[var(--color-brand-deep)]/75">
             {registration?.planName || session?.rol || "Cuenta activa"}
@@ -270,7 +270,7 @@ export function DashboardPage() {
 
             <img
               src={pepeDashboardWelcome}
-              alt="Pepe te da la bienvenida al panel de FacturaBit"
+              alt="Pepe te da la bienvenida al panel de Carti"
               className="pointer-events-none absolute -bottom-[20%] right-[.5%] z-[2] hidden h-[122%] w-auto max-w-[38%] object-contain object-bottom drop-shadow-[0_18px_28px_rgba(2,29,26,.28)] lg:block xl:right-[2.5%]"
             />
           </section>

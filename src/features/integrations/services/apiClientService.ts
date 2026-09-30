@@ -45,7 +45,7 @@ async function authorizedRequest<T>(path: string, init?: RequestInit): Promise<T
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") throw error;
-    throw new Error("No fue posible comunicarse con FacturaBit.");
+    throw new Error("No fue posible comunicarse con Carti.");
   }
 
   let result: ApiResponse<T> | undefined;

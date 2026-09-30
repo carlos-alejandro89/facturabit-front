@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 const slides = [
-  { label: "Panel FacturaBit", eyebrow: "Control operativo" },
+  { label: "Panel Carti", eyebrow: "Control operativo" },
   { label: "Bóveda digital", eyebrow: "Recepción de CFDI" },
   { label: "Autofacturación", eyebrow: "Del ticket al CFDI" },
   { label: "Integraciones", eyebrow: "Para desarrolladores" },
@@ -245,7 +245,7 @@ export function InvoiceVisual() {
   return (
     <div
       className="relative mx-auto h-[430px] w-full max-w-[610px] sm:h-[470px]"
-      aria-label="Servicios de FacturaBit"
+      aria-label="Servicios de Carti"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

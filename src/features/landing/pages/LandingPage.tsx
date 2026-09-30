@@ -43,7 +43,7 @@ const features = [
   },
   {
     icon: Ban,
-    title: "Cancelación desde FacturaBit",
+    title: "Cancelación desde Carti",
     text: "Cancela tus comprobantes sin salir de la aplicación ni ingresar directamente al portal del SAT.",
   },
 ];
@@ -51,7 +51,7 @@ const features = [
 const faqs = [
   [
     "¿Puedo administrar varias empresas?",
-    "Sí. FacturaBit está pensado para operar múltiples RFC desde una sola cuenta, con información separada y controlada.",
+    "Sí. Carti está pensado para operar múltiples RFC desde una sola cuenta, con información separada y controlada.",
   ],
   [
     "¿Mis certificados están protegidos?",
@@ -426,7 +426,7 @@ export function LandingPage() {
                 </h2>
               </div>
               <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted)] lg:justify-self-end">
-                Llevamos la experiencia de FacturaBit a los procesos que ocurren
+                Llevamos la experiencia de Carti a los procesos que ocurren
                 antes y después del timbrado: recepción de comprobantes,
                 facturación desde tickets e integración con tus sistemas.
               </p>
@@ -514,7 +514,7 @@ export function LandingPage() {
               </div>
               <a
                 className="btn-dark whitespace-nowrap"
-                href="mailto:hola@facturabit.mx?subject=Proyecto%20empresarial%20FacturaBit"
+                href="mailto:hola@facturabit.mx?subject=Proyecto%20empresarial%20Cart"
               >
                 Hablemos de tu proyecto <ArrowRight size={17} />
               </a>
@@ -679,7 +679,7 @@ export function LandingPage() {
               <div className="order-2 flex justify-center lg:order-1">
                 <img
                   src={pepeGuide}
-                  alt="Pepe, guía fiscal de FacturaBit"
+                  alt="Pepe, guía fiscal de Carti"
                   className="max-h-[430px] w-auto max-w-full object-contain object-bottom drop-shadow-[0_20px_28px_rgba(15,61,56,.18)]"
                 />
               </div>
@@ -764,7 +764,7 @@ export function LandingPage() {
             </p>
           </div>
           <Link className="btn-dark btn-large" to="/login">
-            Ingresar a FacturaBit <ArrowRight size={19} />
+            Ingresar a Carti <ArrowRight size={19} />
           </Link>
         </div>
       </section>
@@ -792,7 +792,7 @@ export function LandingPage() {
           </div>
         </div>
         <div className="container-shell mt-12 border-t border-white/10 pt-7 text-xs text-white/45">
-          © 2026 FacturaBit. Todos los derechos reservados.
+          © 2026 Carti. Todos los derechos reservados.
         </div>
       </footer>
     </main>

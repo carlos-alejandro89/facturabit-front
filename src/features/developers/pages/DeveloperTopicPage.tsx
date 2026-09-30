@@ -76,7 +76,7 @@ function AuthenticationDocument() {
       <DocumentHeader
         eyebrow="OAuth 2.0 · Client Credentials"
         title="Autenticación"
-        description="Obtén un access token para que tu servidor pueda consumir la API de FacturaBit de forma segura."
+        description="Obtén un access token para que tu servidor pueda consumir la API de Carti de forma segura."
       />
 
       <div className="mt-9 grid gap-4 md:grid-cols-3">
@@ -174,7 +174,7 @@ function EmitCfdiDocument() {
         </p>
       </div>
 
-      <DocsSection title="Respuesta satisfactoria" description="FacturaBit responde con su contrato estándar y coloca los datos del timbrado dentro de data.">
+      <DocsSection title="Respuesta satisfactoria" description="Carti responde con su contrato estándar y coloca los datos del timbrado dentro de data.">
         <CodeBlock code={responseExample} />
         <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-[var(--color-muted)]">
           <CheckCircle2 className="mt-0.5 shrink-0 text-[var(--color-success)]" size={16} />
@@ -260,7 +260,7 @@ function CancelCfdiDocument() {
         <CodeBlock code={cancelCfdiRequestExample} language="bash" />
       </DocsSection>
 
-      <DocsSection title="Campos de la solicitud" description="FacturaBit obtiene los RFC del emisor y receptor desde el comprobante asociado con el UUID dentro de tu organización.">
+      <DocsSection title="Campos de la solicitud" description="Carti obtiene los RFC del emisor y receptor desde el comprobante asociado con el UUID dentro de tu organización.">
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white">
           {[
             ["uuid", "uuid", "Sí", "Folio fiscal del CFDI que se desea cancelar."],
@@ -304,7 +304,7 @@ function CancelCfdiDocument() {
         <CodeBlock code={cancelCfdiReplacementExample} />
       </DocsSection>
 
-      <DocsSection title="Respuesta satisfactoria" description="FacturaBit devuelve el acuse en Base64 y el resultado reportado por el SAT. Una solicitud procesada puede permanecer pendiente de confirmación.">
+      <DocsSection title="Respuesta satisfactoria" description="Carti devuelve el acuse en Base64 y el resultado reportado por el SAT. Una solicitud procesada puede permanecer pendiente de confirmación.">
         <CodeBlock code={cancelCfdiResponseExample} />
         <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-[var(--color-muted)]">
           <CheckCircle2 className="mt-0.5 shrink-0 text-[var(--color-success)]" size={16} />
@@ -373,7 +373,7 @@ function StatusCfdiDocument() {
         </div>
       </div>
 
-      <DocsSection title="Solicitud HTTP" description="Envía únicamente el RFC del emisor y el UUID. FacturaBit obtiene internamente el receptor, total y los últimos ocho caracteres del sello.">
+      <DocsSection title="Solicitud HTTP" description="Envía únicamente el RFC del emisor y el UUID. Carti obtiene internamente el receptor, total y los últimos ocho caracteres del sello.">
         <CodeBlock code={statusCfdiRequestExample} language="bash" />
       </DocsSection>
 
@@ -502,7 +502,7 @@ export function DeveloperTopicPage() {
       <footer className="border-t border-[var(--color-border)] bg-white">
         <div className="container-shell flex flex-col gap-2 py-5 text-[.66rem] text-[var(--color-muted)] sm:flex-row sm:items-center sm:justify-between">
           <p>
-            <strong className="font-bold text-[var(--color-brand)]">FacturaBit API</strong>
+            <strong className="font-bold text-[var(--color-brand)]">Carti API</strong>
             {" · "}Documentación para desarrolladores
           </p>
           <p>Factura. Gestiona. Crece. · 2026</p>

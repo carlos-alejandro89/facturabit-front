@@ -180,7 +180,7 @@ export function SignUpPage() {
               </h1>
               <p className="mt-2.5 text-sm leading-6 text-[var(--color-muted)]">
                 Verifica la opción elegida antes de crear tu espacio en
-                FacturaBit.
+                Carti.
               </p>
               <div className="mt-7 rounded-2xl border border-[var(--color-border)] bg-white p-5">
                 <p className="text-[.68rem] font-bold uppercase tracking-[.12em] text-[var(--color-muted)]">
@@ -217,7 +217,7 @@ export function SignUpPage() {
           )}
         </div>
         <p className="text-xs text-[var(--color-muted)]">
-          © 2026 FacturaBit · Privacidad · Soporte
+          © 2026 Carti · Privacidad · Soporte
         </p>
       </section>
 
@@ -247,7 +247,7 @@ export function SignUpPage() {
 
         <img
           src={pepeGuide}
-          alt="Pepe te da la bienvenida a FacturaBit"
+          alt="Pepe te da la bienvenida a Carti"
           className="relative z-[1] max-h-[72%] w-auto max-w-[78%] object-contain object-bottom drop-shadow-[0_28px_40px_rgba(4,31,29,.4)]"
         />
       </section>

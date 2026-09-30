@@ -132,7 +132,7 @@ export function DevelopersPage() {
         <div className="container-shell grid items-center gap-9 lg:grid-cols-[1fr_.9fr]">
           <div>
             <p className="inline-flex items-center gap-2 text-[.62rem] font-extrabold uppercase tracking-[.15em] text-[var(--color-mint)]">
-              <Code2 size={14} /> FacturaBit API
+              <Code2 size={14} /> Carti API
             </p>
             <h1 className="mt-4 max-w-2xl font-display text-[clamp(2.15rem,4vw,3.45rem)] font-semibold leading-[1.04] tracking-[-.05em]">
               Documentación de integración
@@ -249,7 +249,7 @@ export function DevelopersPage() {
 
           <div className="mt-9 grid gap-5 md:grid-cols-3">
             {[
-              [KeyRound, "1. Crea tus credenciales", "FacturaBit mostrará el client_secret una sola vez. Guárdalo en un gestor de secretos."],
+              [KeyRound, "1. Crea tus credenciales", "Carti mostrará el client_secret una sola vez. Guárdalo en un gestor de secretos."],
               [ShieldCheck, "2. Solicita un token", "Envía client_id y client_secret a /oauth/token con el scope cfdi.emit."],
               [RefreshCw, "3. Reutiliza y renueva", "Conserva el token durante expires_in y solicita otro cuando expire o recibas HTTP 401."],
             ].map(([Icon, title, text]) => {
@@ -394,7 +394,7 @@ export function DevelopersPage() {
               Datos del timbrado
             </h2>
             <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-              Todos los endpoints utilizan la respuesta estándar de FacturaBit.
+              Todos los endpoints utilizan la respuesta estándar de Carti.
               En <code>data</code> encontrarás el UUID, los sellos y el XML
               timbrado.
             </p>

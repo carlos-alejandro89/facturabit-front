@@ -37,7 +37,7 @@ export function PaymentCardForm({ planName, planPrice, planDetail, savedCards = 
   return (
     <div className="mx-auto w-full max-w-[82rem]">
       <PanelPageHeader
-        eyebrow="Suscripción FacturaBit"
+        eyebrow="Suscripción Carti"
         title="Completa tu suscripción"
         description="Revisa tu paquete y elige cómo deseas realizar el pago."
         onBack={onCancel}

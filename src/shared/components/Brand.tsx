@@ -1,22 +1,18 @@
 import { Link } from "react-router-dom";
-import officialLogo from "../../assets/brand/facturabit-logo-primary-v2.png";
-import inverseLogo from "../../assets/brand/facturabit-logo-inverse-v2.png";
+import officialLogo from "../../assets/brand/cart-logo-primary.png";
+import footerLogo from "../../assets/brand/cart-logo-footer.png";
 
 export function Brand({ inverse = false }: { inverse?: boolean }) {
   return (
     <Link
       to="/"
       className="inline-flex items-center"
-      aria-label="FacturaBit, inicio"
+      aria-label="Carti, inicio"
     >
       <img
-        src={inverse ? inverseLogo : officialLogo}
-        alt="FacturaBit · Factura. Gestiona. Crece."
-        className={
-          inverse
-            ? "h-14 w-auto object-contain sm:h-16"
-            : "h-10 w-auto object-contain mix-blend-multiply sm:h-11"
-        }
+        src={inverse ? footerLogo : officialLogo}
+        alt="Carti · Tu facturación, más simple."
+        className={inverse ? "h-10 w-auto object-contain sm:h-11" : "h-9 w-auto object-contain sm:h-10"}
       />
     </Link>
   );

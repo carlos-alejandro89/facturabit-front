@@ -166,7 +166,7 @@ export function LoginPage() {
           </p>
         </div>
         <p className="mt-auto pt-8 text-xs text-[var(--color-muted)]">
-          © 2026 FacturaBit · Privacidad · Soporte
+          © 2026 Carti · Privacidad · Soporte
         </p>
       </section>
       <section className="login-art relative hidden overflow-hidden bg-[var(--color-brand)] lg:block lg:h-screen">
@@ -199,7 +199,7 @@ export function LoginPage() {
         <div className="absolute inset-x-0 bottom-0 z-[1] flex h-[76%] items-start justify-center overflow-hidden">
           <img
             src={pepeLoginTablet}
-            alt="Pepe, asistente de FacturaBit"
+            alt="Pepe, asistente de Carti"
             className="h-[135%] w-auto max-w-none translate-x-[4%] object-contain object-top drop-shadow-[0_28px_40px_rgba(4,31,29,.4)]"
           />
         </div>

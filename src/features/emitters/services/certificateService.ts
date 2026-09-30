@@ -56,7 +56,7 @@ export async function uploadDigitalCertificate(
       body: formData,
     });
   } catch {
-    throw new Error("No fue posible comunicarse con FacturaBit.");
+    throw new Error("No fue posible comunicarse con Carti.");
   }
 
   let result: ApiResponse<CertificateInfo> | undefined;

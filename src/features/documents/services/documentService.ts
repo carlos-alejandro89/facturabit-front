@@ -42,7 +42,7 @@ export async function getFiscalDocuments(query: DocumentQuery = {}) {
     response = await fetch(`${apiUrl}/api/comprobantes?${params}`, { signal: query.signal, headers: { Authorization: `Bearer ${token}` } });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") throw error;
-    throw new Error("No fue posible comunicarse con FacturaBit.");
+    throw new Error("No fue posible comunicarse con Carti.");
   }
   const result = await response.json().catch(() => undefined) as ApiResponse<FiscalDocumentsPage> | undefined;
   if (!response.ok || !result?.success || !result.data) throw new Error(result?.mensaje ?? "No fue posible consultar los comprobantes.");
@@ -57,7 +57,7 @@ export async function getFiscalDocumentXml(guid: string, signal?: AbortSignal) {
     response = await fetch(`${apiUrl}/api/comprobantes/${encodeURIComponent(guid)}/xml`, { signal, headers: { Authorization: `Bearer ${token}` } });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") throw error;
-    throw new Error("No fue posible comunicarse con FacturaBit.");
+    throw new Error("No fue posible comunicarse con Carti.");
   }
   const result = await response.json().catch(() => undefined) as ApiResponse<FiscalDocumentXml> | undefined;
   if (!response.ok || !result?.success || !result.data) throw new Error(result?.mensaje ?? "No fue posible consultar el XML.");
@@ -74,7 +74,7 @@ async function authenticatedFetch(path: string, init?: RequestInit) {
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") throw error;
-    throw new Error("No fue posible comunicarse con FacturaBit.");
+    throw new Error("No fue posible comunicarse con Carti.");
   }
 }
 

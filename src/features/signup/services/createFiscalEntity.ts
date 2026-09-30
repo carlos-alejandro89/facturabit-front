@@ -41,7 +41,7 @@ export async function createFiscalEntity(
     });
   } catch {
     throw new Error(
-      "No fue posible comunicarse con FacturaBit. Verifica que el servicio esté disponible.",
+      "No fue posible comunicarse con Carti. Verifica que el servicio esté disponible.",
     );
   }
 

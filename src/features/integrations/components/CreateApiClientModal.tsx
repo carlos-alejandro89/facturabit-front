@@ -30,7 +30,7 @@ export function CreateApiClientModal({ created, isSubmitting, onCreate, onClose 
             <div>
               <p className="text-[.6rem] font-bold uppercase tracking-[.15em] text-[var(--color-success)]">Integración segura</p>
               <h2 id="api-client-title" className="mt-1 font-display text-xl font-medium tracking-[-.035em]">{created ? "Guarda tus credenciales" : "Nueva credencial API"}</h2>
-              <p className="mt-1 text-[.7rem] leading-5 text-[var(--color-muted)]">{created ? "El secreto no podrá consultarse nuevamente." : "Identifica el sistema que se conectará con FacturaBit."}</p>
+              <p className="mt-1 text-[.7rem] leading-5 text-[var(--color-muted)]">{created ? "El secreto no podrá consultarse nuevamente." : "Identifica el sistema que se conectará con Carti."}</p>
             </div>
           </div>
           <button type="button" onClick={onClose} className="grid size-9 place-items-center rounded-xl text-[var(--color-muted)] transition hover:bg-[var(--color-paper)] hover:text-[var(--color-ink)]" aria-label="Cerrar"><X size={18} /></button>
@@ -40,7 +40,7 @@ export function CreateApiClientModal({ created, isSubmitting, onCreate, onClose 
           <div className="space-y-4 px-6 py-6 sm:px-7">
             <div className="flex gap-3 rounded-2xl border border-[#efd38d] bg-[#fff8e8] px-4 py-3.5 text-[#76500b]">
               <ShieldCheck size={18} className="mt-0.5 shrink-0" />
-              <p className="text-[.7rem] leading-5"><strong>Última oportunidad para copiar el secreto.</strong><br />FacturaBit sólo conserva una versión protegida que no puede recuperarse.</p>
+              <p className="text-[.7rem] leading-5"><strong>Última oportunidad para copiar el secreto.</strong><br />Carti sólo conserva una versión protegida que no puede recuperarse.</p>
             </div>
             <CredentialField label="Client ID" value={created.clientId} copied={copied === "id"} onCopy={() => copy(created.clientId, "id")} />
             <CredentialField label="Client secret" value={created.clientSecret} copied={copied === "secret"} secret onCopy={() => copy(created.clientSecret, "secret")} />

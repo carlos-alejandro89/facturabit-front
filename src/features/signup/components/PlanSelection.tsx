@@ -29,7 +29,7 @@ export function PlanSelection({ onBack, onContinue }: PlanSelectionProps) {
         Elige cómo comenzar
       </h1>
       <p className="mt-2.5 text-sm leading-6 text-[var(--color-muted)]">
-        Selecciona un paquete de timbres o conoce FacturaBit gratis durante 7
+        Selecciona un paquete de timbres o conoce Carti gratis durante 7
         días.
       </p>
 
