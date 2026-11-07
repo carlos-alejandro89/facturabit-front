@@ -14,6 +14,7 @@ import useSound from "use-sound";
 import pepeLoginTablet from "../../../assets/brand/pepe-login-tablet.png";
 import { Brand } from "../../../shared/components/Brand";
 import { findSubscriptionPlan } from "../../../shared/models/subscriptionPlan";
+import { PasswordRecoveryModal } from "../components/PasswordRecoveryModal";
 import { login, saveSession } from "../services/authService";
 import { createErrorSoundDataUri, createSuccessSoundDataUri } from "../utils/errorSound";
 
@@ -35,6 +36,7 @@ export function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string>();
+  const [showPasswordRecovery, setShowPasswordRecovery] = useState(false);
   const [playError] = useSound(errorSound, { volume: 0.16 });
   const [playSuccess] = useSound(successSound, { volume: 0.13 });
   const submit = async (event: FormEvent) => {
@@ -142,9 +144,9 @@ export function LoginPage() {
                 />{" "}
                 Recordarme
               </label>
-              <a href="#" className="font-semibold text-[var(--color-brand)]">
+              <button type="button" onClick={() => setShowPasswordRecovery(true)} className="font-semibold text-[var(--color-brand)] transition hover:text-[var(--color-success)]">
                 ¿Olvidaste tu contraseña?
-              </a>
+              </button>
             </div>
             <button
               className="btn-primary mt-2 w-full justify-center disabled:cursor-wait disabled:opacity-60"
@@ -204,6 +206,17 @@ export function LoginPage() {
           />
         </div>
       </section>
+      {showPasswordRecovery && (
+        <PasswordRecoveryModal
+          initialEmail={email}
+          onClose={() => setShowPasswordRecovery(false)}
+          onCompleted={(recoveredEmail) => {
+            setEmail(recoveredEmail);
+            setPassword("");
+            setShowPasswordRecovery(false);
+          }}
+        />
+      )}
     </main>
   );
 }

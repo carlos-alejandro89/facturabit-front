@@ -58,6 +58,49 @@ export async function login(email: string, password: string): Promise<AuthSessio
   return result.data;
 }
 
+async function postPasswordRecovery<T>(path: string, payload: object): Promise<ApiResponse<T>> {
+  let response: Response;
+  try {
+    response = await fetch(`${apiUrl}/api/auth/password-recovery/${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    throw new Error("No fue posible comunicarse con Carti. Inténtalo nuevamente.");
+  }
+
+  const result = await response.json().catch(() => undefined) as ApiResponse<T> | undefined;
+  if (!response.ok || !result?.success) {
+    throw new Error(result?.mensaje ?? "No fue posible completar la recuperación de contraseña.");
+  }
+  return result;
+}
+
+export async function requestPasswordRecovery(email: string) {
+  const result = await postPasswordRecovery<never>("request", { email });
+  return result.mensaje ?? "Si el correo está registrado, recibirás un código en unos minutos.";
+}
+
+export async function verifyPasswordRecoveryCode(email: string, code: string) {
+  await postPasswordRecovery<{ valid: boolean }>("verify", { email, code });
+}
+
+export async function resetPassword(
+  email: string,
+  code: string,
+  newPassword: string,
+  confirmPassword: string,
+) {
+  const result = await postPasswordRecovery<never>("reset", {
+    email,
+    code,
+    newPassword,
+    confirmPassword,
+  });
+  return result.mensaje ?? "Tu contraseña fue actualizada correctamente.";
+}
+
 export function saveSession(session: AuthSession, persistent = true) {
   clearSession();
   const storage = persistent ? localStorage : sessionStorage;
