@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:5159}
+        VITE_API_URL: ${VITE_API_URL:-https://hub.carti.com.mx}
     image: carti-frontend-img:latest
     ports:
       - "${FRONTEND_PORT:-8080}:80"

@@ -77,13 +77,13 @@ async function postPasswordRecovery<T>(path: string, payload: object): Promise<A
   return result;
 }
 
-export async function requestPasswordRecovery(email: string) {
+export async function requestPasswordRecoveryCode(email: string) {
   const result = await postPasswordRecovery<never>("request", { email });
   return result.mensaje ?? "Si el correo está registrado, recibirás un código en unos minutos.";
 }
 
 export async function verifyPasswordRecoveryCode(email: string, code: string) {
-  await postPasswordRecovery<{ valid: boolean }>("verify", { email, code });
+  await postPasswordRecovery<never>("verify", { email, code });
 }
 
 export async function resetPassword(

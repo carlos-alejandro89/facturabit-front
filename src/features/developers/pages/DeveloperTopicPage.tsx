@@ -12,6 +12,7 @@ import {
 import { Link, Navigate, NavLink, useNavigate, useParams } from "react-router-dom";
 import { Brand } from "../../../shared/components/Brand";
 import { CodeBlock } from "../components/CodeBlock";
+import { PaymentComplementDocument } from "./PaymentComplementDocument";
 import {
   fields,
   invoiceRequestExample,
@@ -24,6 +25,7 @@ import {
 const topics = [
   { slug: "autenticacion", label: "Autenticación", group: "Primeros pasos" },
   { slug: "emitir-cfdi", label: "Emitir CFDI", group: "Servicios CFDI" },
+  { slug: "complemento-pago", label: "Complemento de pago", group: "Servicios CFDI" },
   { slug: "cancelar-cfdi", label: "Cancelar CFDI", group: "Servicios CFDI" },
   {
     slug: "estatus-cfdi",
@@ -199,7 +201,7 @@ function EmitCfdiDocument() {
         </div>
       </DocsSection>
 
-      <NextDocument to="/desarrolladores/cancelar-cfdi" label="Cancelar CFDI" />
+      <NextDocument to="/desarrolladores/complemento-pago" label="Complemento de pago" />
     </article>
   );
 }
@@ -493,6 +495,7 @@ export function DeveloperTopicPage() {
           <div className="mx-auto max-w-6xl">
             {topic === "autenticacion" && <AuthenticationDocument />}
             {topic === "emitir-cfdi" && <EmitCfdiDocument />}
+            {topic === "complemento-pago" && <PaymentComplementDocument />}
             {topic === "cancelar-cfdi" && <CancelCfdiDocument />}
             {topic === "estatus-cfdi" && <StatusCfdiDocument />}
           </div>

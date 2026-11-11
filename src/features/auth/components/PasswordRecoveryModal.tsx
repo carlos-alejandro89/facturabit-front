@@ -2,7 +2,7 @@ import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Mail, ShieldCheck, X } 
 import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 import {
-  requestPasswordRecovery,
+  requestPasswordRecoveryCode,
   resetPassword,
   verifyPasswordRecoveryCode,
 } from "../services/authService";
@@ -34,7 +34,7 @@ export function PasswordRecoveryModal({
     setIsSubmitting(true);
     setError(undefined);
     try {
-      const message = await requestPasswordRecovery(email.trim());
+      const message = await requestPasswordRecoveryCode(email.trim());
       toast.success("Revisa tu correo", { description: message });
       setStep("code");
     } catch (value) {
@@ -87,7 +87,7 @@ export function PasswordRecoveryModal({
     code: {
       eyebrow: "Verificación",
       title: "Revisa tu correo",
-      description: `Enviamos un código a ${email.trim()}. Estará vigente durante 10 minutos.`,
+      description: `Enviamos un código a ${email.trim()}. Por seguridad, tiene una vigencia limitada.`,
       icon: ShieldCheck,
     },
     password: {
